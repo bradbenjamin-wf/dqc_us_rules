@@ -125,7 +125,7 @@ def _run_member_checks(axis, axis_key, axis_config, relset, val, role,
     :type val: :class:'~arelle.ModelXbrl.ModelXbrl'
     :param role: The role for the relationship
     :type role: str
-    :param checked_axes: Dictionary of already-fired axis_key: axis/member.
+    :param checked_axes: Dictionary of already-fired axis_key: list of facts.
     :type checked_axes: dict
     :return: No direct return
     :rtype: None
@@ -154,28 +154,29 @@ def _run_member_checks(axis, axis_key, axis_config, relset, val, role,
         for child in _all_members_under(axis, relset):
             if ((not _is_extension(child, val) and
                     child.qname.localName in disallowed_children)):
-                axis_mem_pair = (axis.qname, child.qname)
-                if axis_mem_pair in checked_axes[axis_key]:
-                    continue
                 fact_list = facts.axis_member_fact(
                     axis.qname.localName,
                     child.qname.localName,
                     val.modelXbrl
                 )
                 if len(fact_list) != 0:
-                    val.modelXbrl.error(
-                        '{base_key}.{extension_key}'.format(
-                            base_key=_CODE_NAME,
-                            extension_key=axis_config[_RULE_INDEX_KEY]
-                        ),
-                        messages.get_message(_CODE_NAME, _UGT_FACT_KEY),
-                        axis=axis.label(),
-                        member=child.label(),
-                        modelObject=fact_list,
-                        ruleVersion=_RULE_VERSION,
-                        errorCount=len(fact_list)
-                    )
-                    checked_axes[axis_key].append(axis_mem_pair)
+                    for fact in fact_list:
+                        if fact in checked_axes[axis_key]:
+                            continue
+                        else:
+                            checked_axes[axis_key].append(fact)
+                        val.modelXbrl.error(
+                            '{base_key}.{extension_key}'.format(
+                                base_key=_CODE_NAME,
+                                extension_key=axis_config[_RULE_INDEX_KEY]
+                            ),
+                            messages.get_message(_CODE_NAME, _UGT_FACT_KEY),
+                            axis=axis.label(),
+                            member=child.label(),
+                            modelObject=[fact],
+                            ruleVersion=_RULE_VERSION,
+                            errorCount=1
+                        )
                 else:
                     val.modelXbrl.error(
                         '{base_key}.{extension_key}'.format(
@@ -202,19 +203,23 @@ def _run_member_checks(axis, axis_key, axis_config, relset, val, role,
                     val.modelXbrl
                 )
                 if len(fact_list) != 0:
-                    val.modelXbrl.error(
-                        '{base_key}.{extension_key}'.format(
-                            base_key=_CODE_NAME,
-                            extension_key=axis_config[_RULE_INDEX_KEY]
-                        ),
-                        messages.get_message(_CODE_NAME, _UGT_FACT_KEY),
-                        axis=axis.label(),
-                        member=child.label(),
-                        modelObject=fact_list,
-                        ruleVersion=_RULE_VERSION,
-                        errorCount=len(fact_list)
-                    )
-                    checked_axes[axis_key].append(axis_mem_pair)
+                    for fact in fact_list:
+                        if fact in checked_axes[axis_key]:
+                            continue
+                        else:
+                            checked_axes[axis_key].append(fact)
+                        val.modelXbrl.error(
+                            '{base_key}.{extension_key}'.format(
+                                base_key=_CODE_NAME,
+                                extension_key=axis_config[_RULE_INDEX_KEY]
+                            ),
+                            messages.get_message(_CODE_NAME, _UGT_FACT_KEY),
+                            axis=axis.label(),
+                            member=child.label(),
+                            modelObject=[fact],
+                            ruleVersion=_RULE_VERSION,
+                            errorCount=1
+                        )
                 else:
                     val.modelXbrl.error(
                         '{base_key}.{extension_key}'.format(
@@ -246,7 +251,7 @@ def _run_extension_checks(axis, axis_key, axis_config, relset, val, role,
     :type val: :class:'~arelle.ModelXbrl.ModelXbrl'
     :param role: The role for the relationship
     :type role: str
-    :param checked_axes: Dictionary of already-fired axis_key: axis/member.
+    :param checked_axes: Dictionary of already-fired axis_key: list of facts
     :type checked_axes: dict
     :return: No direct return
     :rtype: None
@@ -269,19 +274,24 @@ def _run_extension_checks(axis, axis_key, axis_config, relset, val, role,
                         val.modelXbrl
                     )
                     if len(fact_list) != 0:
-                        val.modelXbrl.error(
-                            '{base_key}.{extension_key}'.format(
-                                base_key=_CODE_NAME,
-                                extension_key=axis_config[_RULE_INDEX_KEY]
-                            ),
-                            messages.get_message(_CODE_NAME, _EXT_FACT_KEY),
-                            axis=axis.label(),
-                            member=child.label(),
-                            modelObject=fact_list,
-                            ruleVersion=_RULE_VERSION,
-                            errorCount=len(fact_list)
-                        )
-                        checked_axes[axis_key].append(axis_mem_pair)
+
+                        for fact in fact_list:
+                            if fact in checked_axes[axis_key]:
+                                continue
+                            else:
+                                checked_axes[axis_key].append(fact)
+                            val.modelXbrl.error(
+                                '{base_key}.{extension_key}'.format(
+                                    base_key=_CODE_NAME,
+                                    extension_key=axis_config[_RULE_INDEX_KEY]
+                                ),
+                                messages.get_message(_CODE_NAME, _EXT_FACT_KEY),
+                                axis=axis.label(),
+                                member=child.label(),
+                                modelObject=[fact],
+                                ruleVersion=_RULE_VERSION,
+                                errorCount=1
+                            )
                     else:
                         val.modelXbrl.error(
                             '{base_key}.{extension_key}'.format(
